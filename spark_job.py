@@ -1,18 +1,20 @@
 from pyspark.sql import SparkSession
 
 # Apache Spark oturumunu başlat
-spark = SparkSession.builder.appName("F1PitStopAnalysis").getOrCreate()
+spark = SparkSession.builder.appName("F1RaceAnalysis").getOrCreate()
 
-# CSV verisini yükle
-df = spark.read.csv("data/pit_stops_2023_Monza.csv", header=True, inferSchema=True)
+# CSV verilerini yükle
+pit_stops_df = spark.read.csv("data/pit_stops_2023_Monza.csv", header=True, inferSchema=True)
+fastest_laps_df = spark.read.csv("data/fastest_laps_2023_Monza.csv", header=True, inferSchema=True)
+weather_df = spark.read.csv("data/weather_2023_Monza.csv", header=True, inferSchema=True)
 
-# En hızlı pit stop yapan sürücüyü bul
-df.groupBy("driver").avg("pit_stop_time").orderBy("avg(pit_stop_time)").show()
+# ⚡ En hızlı tur atan sürücüleri analiz et
+fastest_laps_df.groupBy("driver").avg("lap_time").orderBy("avg(lap_time)").show()
 
-# Takımlara göre ortalama pit stop süresi
-df.groupBy("team").avg("pit_stop_time").orderBy("avg(pit_stop_time)").show()
+# ☁️ Hava durumu ve pit stop ilişkisi
+weather_df.join(pit_stops_df, "session_time").groupBy("weather_condition").avg("pit_stop_time").show()
 
-# Pit stop süresi 2.5 saniyenin altında olanları filtrele
-df.filter(df["pit_stop_time"] < 2.5).show()
+# 🔥 Takımlara göre ortalama pit stop süreleri
+pit_stops_df.groupBy("team").avg("pit_stop_time").orderBy("avg(pit_stop_time)").show()
 
 print("✅ Apache Spark analizleri tamamlandı!")
