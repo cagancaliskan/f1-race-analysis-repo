@@ -2,25 +2,24 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# 📂 Veri dosyasını yükleyelim
-df = pd.read_csv("data/pit_stops_2023_Monza.csv")
+# 🎨 Seaborn fütüristik tema
+sns.set_style("darkgrid")
 
-# 🔹 Pit stop süreleri histogramı
-plt.figure(figsize=(10, 5))
-sns.histplot(df["pit_stop_time"], bins=15, kde=True)
-plt.title("🏎️ Pit Stop Süreleri Dağılımı")
-plt.xlabel("Pit Stop Süresi (s)")
-plt.ylabel("Frekans")
-plt.show()
+# 📂 Verileri yükle
+df_pit = pd.read_csv("data/pit_stops_2023_Monza.csv")
+df_speed = pd.read_csv("data/fastest_laps_2023_Monza.csv")
+df_weather = pd.read_csv("data/weather_2023_Monza.csv")
 
-# 🔹 Takımların ortalama pit stop süreleri
-plt.figure(figsize=(10, 5))
-team_avg_pit = df.groupby("team")["pit_stop_time"].mean().sort_values()
-sns.barplot(x=team_avg_pit.index, y=team_avg_pit.values)
-plt.xticks(rotation=45)
-plt.title("Takımlara Göre Ortalama Pit Stop Süreleri")
-plt.xlabel("Takım")
-plt.ylabel("Ortalama Pit Stop Süresi (s)")
-plt.show()
+# 🔹 Hız ve sektör zamanları çizimi
+plt.figure(figsize=(12, 6))
+sns.lineplot(data=df_speed, x="lap_number", y="lap_time", hue="driver", palette="coolwarm")
+plt.title("🏎️ En Hızlı Turlar")
+plt.savefig("figures/fastest_laps.png")
 
-print("✅ Veri görselleştirme tamamlandı!")
+# 🔥 Hava durumu ve pit stop ilişkisi
+plt.figure(figsize=(12, 6))
+sns.boxplot(data=df_weather, x="weather_condition", y="pit_stop_time", palette="viridis")
+plt.title("☁️ Hava Durumu ve Pit Stop Süreleri")
+plt.savefig("figures/weather_vs_pit.png")
+
+print("✅ Gelişmiş grafikler oluşturuldu ve kaydedildi!")
